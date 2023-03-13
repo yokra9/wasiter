@@ -1,0 +1,12 @@
+[package]
+name = "wasiter"
+version = "0.1.0"
+authors = ["yokra9"]
+edition = "2021"
+
+[[bin]]
+name = "wasiter"
+path = "src/main.rs"
+
+[dependencies]
+wasmedge_wasi_socket = "0.4.3"
