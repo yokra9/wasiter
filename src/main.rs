@@ -7,7 +7,7 @@ fn main() -> std::io::Result<()> {
     let remote = get_required_env("REMOTE");
 
     // TCP ソケットを作成し、ローカル側のアドレスにバインドする
-    let listener = TcpListener::bind(local, false)?;
+    let listener = TcpListener::bind(local, false).unwrap();
 
     // クライアントから新しい接続があるたびにストリームを返す
     for stream in listener.incoming() {
@@ -18,10 +18,10 @@ fn main() -> std::io::Result<()> {
 
                 println!(
                     "{} <-> {} // {} <-> {}",
-                    client.local_addr()?,
-                    client.peer_addr()?,
-                    server.local_addr()?,
-                    server.peer_addr()?
+                    client.local_addr().unwrap(),
+                    client.peer_addr().unwrap(),
+                    server.local_addr().unwrap(),
+                    server.peer_addr().unwrap()
                 );
 
                 proxy(client, server)?;
@@ -46,7 +46,7 @@ fn proxy(mut client: TcpStream, mut server: TcpStream) -> std::io::Result<()> {
     let mut request: Vec<u8> = Vec::new();
     loop {
         let mut buf = [0; 1024];
-        let bytes_read = client.read(&mut buf)?;
+        let bytes_read = client.read(&mut buf).unwrap();
         request.extend_from_slice(&buf[..bytes_read]);
 
         if bytes_read < 1024 {
@@ -57,13 +57,13 @@ fn proxy(mut client: TcpStream, mut server: TcpStream) -> std::io::Result<()> {
     println!("request :\n{}", std::str::from_utf8(&request).unwrap());
 
     // プロキシ先のサーバーにリクエストを送信する
-    server.write(&request)?;
+    server.write(&request).unwrap();
 
     // プロキシ先のサーバーからレスポンスを受け取り、クライアントに送信する
     loop {
         let mut response = [0; 1024];
-        let bytes_read = server.read(&mut response)?;
-        client.write(&response[..bytes_read])?;
+        let bytes_read = server.read(&mut response).unwrap();
+        client.write(&response[..bytes_read]).unwrap();
 
         if bytes_read < 1024 {
             break;
@@ -71,8 +71,8 @@ fn proxy(mut client: TcpStream, mut server: TcpStream) -> std::io::Result<()> {
     }
 
     // ストリームを閉じる
-    client.shutdown(Shutdown::Both)?;
-    server.shutdown(Shutdown::Both)?;
+    client.shutdown(Shutdown::Both).unwrap();
+    server.shutdown(Shutdown::Both).unwrap();
 
     Ok(())
 }
