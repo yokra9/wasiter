@@ -1,10 +1,15 @@
 use std::io::{Read, Write};
-use wasmedge_wasi_socket::{Shutdown, TcpListener, TcpStream};
+use wasmedge_wasi_socket::{nslookup, Shutdown, SocketAddr, TcpListener, TcpStream};
 
 fn main() -> std::io::Result<()> {
     // パラメタを受け取る
     let local = get_required_env("LOCAL");
     let remote = get_required_env("REMOTE");
+
+    let local =
+        to_socket_address(&local).expect("パラメタをソケットアドレスに変換できませんでした");
+    let remote =
+        to_socket_address(&remote).expect("パラメタをソケットアドレスに変換できませんでした");
 
     // TCP ソケットを作成し、ローカル側のアドレスにバインドする
     let listener = TcpListener::bind(local, false).unwrap();
@@ -39,6 +44,20 @@ fn get_required_env(key: &str) -> String {
     return std::env::var(key).unwrap_or_else(|err| {
         panic!("{}が未設定です: {}", key, err);
     });
+}
+
+fn to_socket_address(str: &str) -> Result<SocketAddr, &'static str> {
+    let mut iter = str.split(":");
+    let host = iter.next().expect("パラメタの書式が間違っています");
+    let port = iter.next().expect("パラメタの書式が間違っています");
+
+    let addr = nslookup(host, port).expect("名前解決に失敗しました");
+
+    if addr.len() == 0 {
+        return Err("名前解決に失敗しました");
+    }
+
+    Ok(addr[0])
 }
 
 fn proxy(mut client: TcpStream, mut server: TcpStream) -> std::io::Result<()> {
