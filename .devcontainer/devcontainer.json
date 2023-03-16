@@ -1,5 +1,5 @@
 {
-    "image": "debian:11",
+    "image": "wasmedge/wasmedge:ubuntu-build-gcc",
     "features": {
         "ghcr.io/devcontainers/features/common-utils:2": {
             "installZsh": "false",
