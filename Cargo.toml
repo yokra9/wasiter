@@ -10,3 +10,4 @@ path = "src/main.rs"
 
 [dependencies]
 wasmedge_wasi_socket = "0.4.3"
+tokio_wasi = { version = "1.25.1", features = ["full"] }
