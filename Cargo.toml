@@ -9,5 +9,5 @@ name = "wasiter"
 path = "src/main.rs"
 
 [dependencies]
-wasmedge_wasi_socket = "0.4.3"
+wasmedge_wasi_socket = "0.5.0"
 tokio_wasi = { version = "1.25.1", features = ["full"] }
